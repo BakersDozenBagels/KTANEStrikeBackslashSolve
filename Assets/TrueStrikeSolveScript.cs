@@ -17,8 +17,12 @@ public class TrueStrikeSolveScript : MonoBehaviour
     private GameObject _strikeSl;
     private static Type _bombType;
     private static bool _suppressDetonation;
+    // Without this, any unsupressed strike in Time Mode would detonate the bomb (I'm not sure why).
+    // To fix this, we can simply suppress all strikes in Time Mode, since that's the default behaviour anyways.
+    private static Func<bool> _isTimeMode = () => false;
 
 #if !UNITY_EDITOR
+//#else
     static TrueStrikeSolveScript()
     {
         Harmony harm = new Harmony("BDB.StrikeSolve");
@@ -26,6 +30,26 @@ public class TrueStrikeSolveScript : MonoBehaviour
         System.Reflection.MethodInfo transpiler = typeof(TrueStrikeSolveScript).Method("Weave");
         harm.Patch(method, transpiler: new HarmonyMethod(transpiler));
         Debug.Log("[Strike\\Solve] Harmony patch applied sucessfully.");
+
+        HookTweaks();
+    }
+
+    private static bool HookTweaks()
+    {
+        var tweak = ReflectionHelper.FindType("Tweaks");
+        if (tweak == null)
+        {
+            _isTimeMode = HookTweaks;
+            return false;
+        }
+        var prop = tweak.GetProperty("CurrentMode", ReflectionHelper.Flags);
+        if(prop == null)
+        {
+            _isTimeMode = HookTweaks;
+            return false;
+        }
+        _isTimeMode = () => (int)prop.GetValue(null, new object[0]) == 1;
+        return _isTimeMode();
     }
 #endif
 
@@ -37,7 +61,7 @@ public class TrueStrikeSolveScript : MonoBehaviour
         _strikeSl = Instantiate(_sl, _sl.transform.parent);
         _strikeSl.transform.localPosition = new Vector3(-0.075167f, 0.01986f, -0.076057f);
         yield return null;
-        _strikeSl.transform.GetChild(1).gameObject.SetActive(false); // Remove duplicate that get created in StatusLight.Start()
+        _strikeSl.transform.GetChild(1).gameObject.SetActive(false); // Remove duplicate that gets created in StatusLight.Start()
     }
 
     private void Button()
@@ -55,6 +79,7 @@ public class TrueStrikeSolveScript : MonoBehaviour
             _module.HandlePass();
             _strikeSl.transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
             _strikeSl.transform.GetChild(0).GetChild(2).gameObject.SetActive(true);
+            _isSolved = true;
         }
     }
 
@@ -83,6 +108,6 @@ public class TrueStrikeSolveScript : MonoBehaviour
 
     private static bool IsSuppressed()
     {
-        return _suppressDetonation;
+        return _suppressDetonation || _isTimeMode();
     }
 }

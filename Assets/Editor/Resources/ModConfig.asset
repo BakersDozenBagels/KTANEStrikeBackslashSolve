@@ -14,11 +14,15 @@ MonoBehaviour:
   id: strikeBackslashSolve
   title: Strike\Solve
   author: BakersDozenBagels
-  description: 'Press: Strike; Solve.
-
-
-    Created to fit the theme of "Three-Sentence Manual," although this would work
-    as three words (with clarification).'
-  version: 1.0
+  description: "Press: Strike; Solve.\r\n\r\nCreated to fit the theme of \"Three-Sentence
+    Manual,\" although this would also work as three words (with clarification).\r\n\r\nTP
+    support would be very simple to add, although this would be very difficult to
+    score (plus it's me so it isn't happening anyways).\r\n\r\nManual available as
+    a PDF or in its entirety here:\r\n\r\nPressing the button will cause the module
+    to strike, then if it hasn't already, to solve.\r\nStrikes from this module will
+    not detonate the bomb for reaching or exceeding the bomb's strike limit.\r\n\r\nSource:
+    https://github.com/BakersDozenBagels/KTANEStrikeBackslashSolve\r\n\r\nFor the
+    record, this took three hours to make."
+  version: 1.1
   outputFolder: build
   previewImage: {fileID: 2800000, guid: ddd73aeaec171934caff580e3730f8d4, type: 3}
